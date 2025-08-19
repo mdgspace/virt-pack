@@ -1,13 +1,23 @@
-CC = gcc
-CFLAGS = -Wall -Iinclude
-SRC = src/main.c src/installer.c src/parser.c src/resolver.c src/uninstaller.c src/util.c src/commands/help.c src/commands/make.c src/commands/remove.c src/commands/show.c 
-BIN = virt-pack # the binary executable
-LIBS = -ljansson
+CC := cc
+SRC := src/main.c src/installer.c src/parser.c src/resolver.c src/uninstaller.c src/util.c src/commands/help.c src/commands/make.c src/commands/remove.c src/commands/show.c
+OBJS := $(SRC:.c=.o)
+LDLIBS := -ljansson
 
-all: $(BIN)
+PREFIX ?= /usr/local
+BINDIR := $(PREFIX)/bin
+SCRIPTDIR := $(PREFIX)/share/virt-pack
 
-$(BIN): $(SRC)
-	$(CC) $(CFLAGS) -o $(BIN) $(SRC) $(LIBS)
+all: virt-pack
+
+virt-pack: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+install: all
+	mkdir -p $(BINDIR) $(SCRIPTDIR)
+	install virt-pack $(BINDIR)
+	cp -r scripts/update_db.py $(SCRIPTDIR)
+	chmod -R 755 $(SCRIPTDIR)/scripts
 
 clean:
-	rm -f $(BIN)
+	rm -f virt-pack src/*.o
+
