@@ -1,24 +1,18 @@
 #include "../../include/commands.h"
 #include "../../include/util.h"
 
-void bear_intercept(const char *env_name, BuildTool tool)
+void bear_intercept(const char *env_name,const char* command)//lets try parsing the entire command instead
+//check what does env_name do
 {
     printf("Intercepting using bear...\n");
 
     // get local directory path
     char local_dir[PATH_MAX];
     get_local_dir(local_dir, sizeof(local_dir));
-
     char cmd[256];
-    switch (tool)
-    {
-    case MAKE:
-        snprintf(cmd, sizeof(cmd), "bear intercept -- make");
-
-    case CMAKE:
-        snprintf(cmd, sizeof(cmd), "bear intercept -- cmake ..");
-    }
-
+    //prepend bear intercept to current command
+    snprintf(cmd,sizeof(cmd),"bear intercept -- %s",command);//256 BITS MIGHT TRUNCATE
+    printf("Running: %s\n",cmd);
     int ret = system(cmd);
     if (ret != 0)
     {
@@ -41,7 +35,7 @@ void bear_intercept(const char *env_name, BuildTool tool)
     }
 
     FILE *dest = fopen(dest_path, "w");
-    if (!src)
+    if (!dest)
     {
         perror("[ERROR] Could not create destination events.json. Check perms and try again\n");
         fclose(src);
@@ -62,13 +56,13 @@ void bear_intercept(const char *env_name, BuildTool tool)
     printf("(*) bear intercept ended\n");
 }
 
-void handle_make(int argc, char *argv[], BuildTool tool)
+void handle_make(int argc, char *argv[], const char* command)
 {
     // get env name
     char env_name[256];
     snprintf(env_name, sizeof(env_name), "%s", argv[2]);
 
-    bear_intercept(env_name, tool);
+    bear_intercept(env_name, command);
     parser_main(env_name);
     resolver_main();
     installer_main(env_name);
