@@ -2,52 +2,51 @@
 #include <stdlib.h>
 #include <jansson.h>
 #include <string.h>
-
 #include "../include/util.h"
 
 #define PATH_MAX 4096
 
-// install a package via apt
-void install_package(const char *pkgname)
-{
-    printf("Installing %s\n...", pkgname);
+// // install a package via apt
+// void install_package(const char *pkgname)
+// {
+//     printf("Installing %s\n...", pkgname);
 
-    // apt command
-    char cmd[256];
-    snprintf(cmd, sizeof(cmd), "sudo apt install -y %s", pkgname);
+//     // apt command
+//     char cmd[256];
+//     snprintf(cmd, sizeof(cmd), "sudo apt install -y %s", pkgname);
 
-    int ret = system(cmd);
-    if (ret != 0)
-    {
-        fprintf(stderr, "[ERROR] Failed to install package: %s\n", pkgname);
-    }
-}
+//     int ret = system(cmd);
+//     if (ret != 0)
+//     {
+//         fprintf(stderr, "[ERROR] Failed to install package: %s\n", pkgname);
+//     }
+//}
 
 // add package name to installed.json env record
-void record_installed_packages(json_t *installed_map, const char *env_name, const char *pkgname)
-{
+// void record_installed_packages(json_t *installed_map, const char *env_name, const char *pkgname)
+// {
 
-    json_t *pkg_array = json_object_get(installed_map, env_name);
+//     json_t *pkg_array = json_object_get(installed_map, env_name);
 
-    if (!pkg_array)
-    {
-        pkg_array = json_array();
-        json_object_set_new(installed_map, env_name, pkg_array);
-    }
+//     if (!pkg_array)
+//     {
+//         pkg_array = json_array();
+//         json_object_set_new(installed_map, env_name, pkg_array);
+//     }
 
-    // add only if not already present
-    size_t i;
-    json_t *val;
-    json_array_foreach(pkg_array, i, val)
-    {
-        if (json_is_string(val) && strcmp(json_string_value(val), pkgname) == 0)
-            return;
-    }
+//     // add only if not already present
+//     size_t i;
+//     json_t *val;
+//     json_array_foreach(pkg_array, i, val)
+//     {
+//         if (json_is_string(val) && strcmp(json_string_value(val), pkgname) == 0)
+//             return;
+//     }
 
-    json_array_append_new(pkg_array, json_string(pkgname));
-}
+//     json_array_append_new(pkg_array, json_string(pkgname));
+// }
 
-int installer_main(const char *env_name)
+int installer_main()
 {
     printf("(*) installer main started\n");
 
@@ -67,7 +66,7 @@ int installer_main(const char *env_name)
         fprintf(stderr, "[ERROR] Failed to load %s: %s\n", missing_file, error.text);
         return EXIT_FAILURE;
     }
-
+    //!What is virt_pack_db.json
     // load virt-pack-db.json -> object
     char db_file[PATH_MAX];
     snprintf(db_file, sizeof(db_file), "%s/virt-pack-db.json", local_dir);
