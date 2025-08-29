@@ -121,17 +121,15 @@ bool write_json_to_file(json_t *array, const char *filename)
     return result == 0;
 }
 
-int parser_main(const char *env_name)
+int parser_main()
 {
     printf("(*) parser main started\n");
-
-    // get local virt-pack directory
     char local_dir[PATH_MAX];
     get_local_dir(local_dir, sizeof(local_dir));
 
     // construct path to the env-specific events.json file
     char input_file[PATH_MAX];
-    snprintf(input_file, sizeof(input_file), "%s/%s-events.json", local_dir, env_name);
+    snprintf(input_file, sizeof(input_file), "%s/events.json", local_dir);
 
     // get libs-from-intercept.json <- output
     char output_file[PATH_MAX];

@@ -18,15 +18,9 @@ typedef enum
 } Command;
 
 // to store the type of build tool being used
-typedef enum
-{
-    MAKE,
-    CMAKE,
-    CARGO,
-    UNKNOWN,
-} BuildTool;
 
-void handle_make(int argc, char *argv[], BuildTool tool);
+
+void handle_make(int argc, char *argv[]);
 void handle_remove(int argc, char *argv[]);
 int show_environments();
 int show_env_packages(const char *env_name);

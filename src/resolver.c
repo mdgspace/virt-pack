@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <jansson.h>
 #include <unistd.h>
 
@@ -9,13 +8,6 @@
 #define PATH_MAX 4096
 
 // runs `pkg-config --exists <lib>` and checks return code ( to check for already existing libraries )
-int is_installed(const char *lib_name)
-{
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "pkg-config --exists %s", lib_name);
-    int ret = system(cmd);
-    return ret == 0;
-}
 
 int resolver_main()
 {
@@ -57,15 +49,10 @@ int resolver_main()
             continue;
 
         const char *lib_name = json_string_value(lib);
-        if (is_installed(lib_name))
-        {
-            printf("[OK] %s\n", lib_name);
-        }
-        else
-        {
-            printf("[MISSING] %s\n", lib_name);
-            json_array_append_new(missing_array, json_string(lib_name));
-        }
+      
+            //printf("[MISSING] %s\n", lib_name);
+        json_array_append_new(missing_array, json_string(lib_name));
+        
     }
 
     // get file to write missing libraries in

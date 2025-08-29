@@ -1,75 +1,92 @@
 #include "../../include/commands.h"
-#include "../../include/util.h"
+#include "../../include/installer.h"
+#include "../../include/parser.h"
+#include "../../include/resolver.h"
+#include "string.h"
 
-void bear_intercept(const char *env_name, BuildTool tool)
+char *join_args(int argc, char *argv[]); 
+void bear_intercept(int argc, char *argv[])//lets try parsing the entire command instead
+//check what does env_name do
 {
     printf("Intercepting using bear...\n");
 
     // get local directory path
-    char local_dir[PATH_MAX];
-    get_local_dir(local_dir, sizeof(local_dir));
-
+    // char local_dir[PATH_MAX];
+    // get_local_dir(local_dir, sizeof(local_dir));
     char cmd[256];
-    switch (tool)
-    {
-    case MAKE:
-        snprintf(cmd, sizeof(cmd), "bear intercept -- make");
-
-    case CMAKE:
-        snprintf(cmd, sizeof(cmd), "bear intercept -- cmake ..");
-    }
-
+    //prepend bear intercept to current command
+    char* command=join_args(argc,argv);//! add malloc
+    snprintf(cmd,sizeof(cmd),"bear intercept -- %s",command);//!256 BITS MIGHT TRUNCATE
+    printf("Running: %s\n",cmd);
     int ret = system(cmd);
     if (ret != 0)
     {
         fprintf(stderr, "[ERROR] Failed to run bear intercept command\n");
         return;
     }
-
+    //! aage ka should not be required
     // source and destination paths
-    char src_path[PATH_MAX];
-    snprintf(src_path, sizeof(src_path), "events.json");
+    // char src_path[PATH_MAX];
+    // snprintf(src_path, sizeof(src_path), "events.json");
 
-    char dest_path[PATH_MAX];
-    snprintf(dest_path, sizeof(dest_path), "%s/%s-events.json", local_dir, env_name);
+    // char dest_path[PATH_MAX];
+    // snprintf(dest_path, sizeof(dest_path), "%s-events.json", local_dir);
 
-    FILE *src = fopen(src_path, "r");
-    if (!src)
-    {
-        perror("[ERROR] Could not open source events.json. Check perms and try again\n");
-        return;
-    }
+    // FILE *src = fopen(src_path, "r");
+    // if (!src)
+    // {
+    //     perror("[ERROR] Could not open source events.json. Check perms and try again\n");
+    //     return;
+    // }
 
-    FILE *dest = fopen(dest_path, "w");
-    if (!src)
-    {
-        perror("[ERROR] Could not create destination events.json. Check perms and try again\n");
-        fclose(src);
-        return;
-    }
+    // FILE *dest = fopen(dest_path, "w");
+    // if (!dest)
+    // {
+    //     perror("[ERROR] Could not create destination events.json. Check perms and try again\n");
+    //     fclose(src);
+    //     return;
+    // }
 
-    char buffer[8192];
-    size_t bytes;
-    while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
-    {
-        fwrite(buffer, 1, bytes, dest);
-    }
+    // char buffer[8192];
+    // size_t bytes;
+    // while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
+    // {
+    //     fwrite(buffer, 1, bytes, dest);
+    // }
 
-    fclose(src);
-    fclose(dest);
+    // fclose(src);
+    // fclose(dest);
 
-    printf("(*) Copied events.json to %s\n", dest_path);
-    printf("(*) bear intercept ended\n");
+    // printf("(*) Copied events.json to %s\n", dest_path);
+    // printf("(*) bear intercept ended\n");
 }
+char *join_args(int argc, char *argv[]) {
+    int total_len = 0;
+    //! what if argc less than 1
+    for (int i = 0; i < argc; i++) {
+        total_len += strlen(argv[i]) + 1; // +1 for space or '\0'
+    }
 
-void handle_make(int argc, char *argv[], BuildTool tool)
+    char *result = malloc(total_len);
+    if (!result) return NULL;
+
+    result[0] = '\0';
+
+    for (int i = 0; i < argc; i++) {
+        strcat(result, argv[i]);
+        if (i < argc - 1) strcat(result, " ");
+    }
+
+    return result;
+}
+void handle_make(int argc, char *argv[])
 {
     // get env name
-    char env_name[256];
-    snprintf(env_name, sizeof(env_name), "%s", argv[2]);
+    //char env_name[256];
+    //snprintf(env_name, sizeof(env_name), "%s", argv[2]);
 
-    bear_intercept(env_name, tool);
-    parser_main(env_name);
+    bear_intercept(argc, argv);
+    parser_main();
     resolver_main();
-    installer_main(env_name);
+    installer_main();
 }

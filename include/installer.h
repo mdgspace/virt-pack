@@ -9,6 +9,6 @@
 
 void install_package(const char *pkgname);
 void record_installed_packages(json_t *installed_map, const char *env_name, const char *pkgname);
-int installer_main(const char *env_name);
+int installer_main();
 
 #endif
