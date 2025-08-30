@@ -9,7 +9,57 @@
 #include <sys/wait.h>
 #define PATH_MAX 4096
 
+// helper to run apt-file search
+char **apt_file_search(const char *lib, int *count)
+{
+    char cmd[PATH_MAX];
+    snprintf(cmd, sizeof(cmd), "apt-file search -x '%s$'", lib);
+    // using regex match flag
 
+    FILE *fp = popen(cmd, "r");
+    if (!fp)
+    { // if the command fails
+        perror("popen failed");
+        *count = 0;
+        return NULL;
+    }
+
+    char line[PATH_MAX];
+    char **pkgs = NULL;
+    int n = 0;
+    while (fgets(line, sizeof(line), fp))
+    {
+        char *colon = strchr(line, ':');
+        *colon = '\0';
+        char *pkg = strdup(line);
+        if (!pkg)
+            continue;
+
+        // check if already added
+        int exists = 0;
+        for (int i = 0; i < n; i++)
+        {
+            if (strcmp(pkgs[i], pkg) == 0)
+            {
+                exists = 1;
+                break;
+            }
+        }
+
+        if (!exists)
+        {
+            pkgs = realloc(pkgs, (n + 1) * sizeof(char *));
+            pkgs[n++] = pkg;
+        }
+        else
+        {
+            free(pkg);
+        }
+    }
+    pclose(fp);
+    *count = n;
+    return pkgs;
+}
 
 int installer_main()
 {
@@ -31,54 +81,46 @@ int installer_main()
         fprintf(stderr, "[ERROR] Failed to load %s: %s\n", missing_file, error.text);
         return EXIT_FAILURE;
     }
-    //!What is virt_pack_db.json
     //! can probably remove installed_file
-    // load virt-pack-db.json -> object
-    char db_file[PATH_MAX];
-    snprintf(db_file, sizeof(db_file), "%s/virt-pack-db.json", local_dir);
 
-    json_t *db = json_load_file(db_file, 0, &error);
-    if (!db || !json_is_object(db))
+    size_t dep_count = json_array_size(missing_libs);
+    char **args = malloc((dep_count + 3) * sizeof(char *));
+    if (!args)
     {
-        fprintf(stderr, "[ERROR] Failed to load %s: %s\n", db_file, error.text);
+        fprintf(stderr, "[ERROR] malloc failed\n");
         json_decref(missing_libs);
+
         return EXIT_FAILURE;
     }
-
-    size_t i;
-    json_t *lib_name;
-    size_t dep_count = json_array_size(missing_libs);
-    char **args = malloc((dep_count + 3) * sizeof(char*)); 
-    if (!args) {
-    fprintf(stderr, "[ERROR] malloc failed\n");
-    json_decref(missing_libs);
-    json_decref(db);
-    return EXIT_FAILURE;
-    }
     //! currently 2hardcoded for ubuntu
-    char* pkg_name=basename(local_dir);
+    char *pkg_name = basename(local_dir);
     //! basename may not be unique
     // char script_path[PATH_MAX];
     // snprintf(script_path, sizeof(script_path), "%s/deb_install.sh",local_dir);
     // printf(script_path);
     char exe_path[PATH_MAX];
-ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path)-1);
-if (len == -1) {
-    perror("readlink");
-    exit(1);
-}
-exe_path[len] = '\0';
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len == -1)
+    {
+        perror("readlink");
+        exit(1);
+    }
+    exe_path[len] = '\0';
 
-char *exe_dir = dirname(exe_path);
+    char *exe_dir = dirname(exe_path);
 
-char script_path[PATH_MAX];
-snprintf(script_path, sizeof(script_path), "%s/src/deb_install.sh", exe_dir);
-printf(script_path);
-args[0] = strdup(script_path);
+    char script_path[PATH_MAX];
+    snprintf(script_path, sizeof(script_path), "%s/deb_install.sh", exe_dir);
+    printf(script_path);
+    args[0] = strdup(script_path);
     args[0] = script_path;
     args[1] = strdup(pkg_name);
 
     size_t arg_index = 2;
+
+    size_t i;
+    json_t *lib_name;
+
     // get the array of packages corr to each lib name
     json_array_foreach(missing_libs, i, lib_name)
     {
@@ -86,49 +128,66 @@ args[0] = strdup(script_path);
             continue;
 
         const char *name = json_string_value(lib_name);
-        json_t *pkgs = json_object_get(db, name);
 
-        if (!pkgs || !json_is_array(pkgs)||json_array_size(pkgs)==0)
+        int count = 0;
+        char **pkgs = apt_file_search(name, &count);
+        if (count == 0)
         {
-            fprintf(stderr, "[WARNING] No packages found for %s\n", name);
+            fprintf(stderr, "[WARNING] No package found for %s\n", name);
             continue;
         }
 
-        // get the first package in the array
-        const char *pkg_path = json_string_value(json_array_get(pkgs, 0));
+        int choice = 0;
+        if (count > 1)
+        {
+            printf("\nMultiple packages found for %s:\n", name);
+            for (int j = 0; j < count; j++)
+            {
+                printf(" [%d] %s\n", j + 1, pkgs[j]);
+            }
+            printf("Select package [1-%d]: ", count);
+            fflush(stdout);
+            scanf("%d", &choice);
+            if (choice < 1 || choice > count)
+                choice = 1;
+        }
 
-        // extract the debian package name from path
-        const char *slash = strchr(pkg_path, '/');
-        const char *pkg = slash ? slash + 1 : pkg_path;
-        //yaha pe start installing them
-        args[arg_index++]=strdup(pkg);
-        // install_package(pkg);
-        // record_installed_packages(installed, env_name, pkg);
+        const char *pkg = pkgs[choice - 1];
+        args[arg_index++] = strdup(pkg);
+
+        for (int j = 0; j < count; j++)
+            free(pkgs[j]);
+        free(pkgs);
     }
-    args[arg_index]=NULL;
+    args[arg_index] = NULL;
     pid_t pid = fork();
-    if (pid == 0) {
+    if (pid == 0)
+    {
         execvp(args[0], args);
         perror("execvp failed");
         _exit(127);
-    } else if (pid < 0) {
-    perror("fork failed");
-    } else {
+    }
+    else if (pid < 0)
+    {
+        perror("fork failed");
+    }
+    else
+    {
         int status;
         waitpid(pid, &status, 0);
-    if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-        fprintf(stderr, "[ERROR] virtual package install failed\n");
+        if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+        {
+            fprintf(stderr, "[ERROR] virtual package install failed\n");
         }
     }
 
-// free args
-for (size_t j = 1; j < arg_index; j++) {
-    free(args[j]);
-}
-free(args);
+    // free args
+    for (size_t j = 1; j < arg_index; j++)
+    {
+        free(args[j]);
+    }
+    free(args);
     json_decref(missing_libs);
-    json_decref(db);
-
 
     printf("(*) installer main ended\n");
     return 0;
