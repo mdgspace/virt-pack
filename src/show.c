@@ -1,3 +1,4 @@
+#include <jansson.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,10 +6,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <limits.h>             // For PATH_MAX
-#include "../../include/util.h" // for get_local_dir()
-#include "../../include/installer.h"
-#include "../../include/parser.h"
-#include "../../include/commands.h"
+#include "util.h"
+#include "commands.h"
 
 int has_installed_suffix(const char *filename)
 {

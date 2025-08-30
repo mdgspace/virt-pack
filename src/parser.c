@@ -4,7 +4,7 @@
 #include <jansson.h>
 #include <stdbool.h>
 
-#include "../include/util.h"
+#include "util.h"
 
 #define PATH_MAX 4096
 
@@ -152,3 +152,4 @@ int parser_main()
     printf("(*) parser main ended\n");
     return EXIT_SUCCESS;
 }
+

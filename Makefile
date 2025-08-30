@@ -1,5 +1,5 @@
 CC := cc
-SRC := src/main.c src/installer.c src/parser.c src/resolver.c src/uninstaller.c src/util.c src/commands/help.c src/commands/make.c src/commands/remove.c src/commands/show.c
+SRC := src/main.c src/installer.c src/parser.c src/resolver.c src/uninstaller.c src/util.c src/make.c src/show.c
 OBJS := $(SRC:.c=.o)
 LDLIBS := -ljansson
 

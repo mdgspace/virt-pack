@@ -1,8 +1,12 @@
-#include "../../include/commands.h"
-#include "../../include/installer.h"
-#include "../../include/parser.h"
-#include "../../include/resolver.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "commands.h"
+#include "installer.h"
+#include "parser.h"
+#include "resolver.h"
+#include "uninstaller.h"
 
 char *join_args(int argc, char *argv[]); 
 void bear_intercept(int argc, char *argv[])//lets try parsing the entire command instead
@@ -89,4 +93,13 @@ void handle_make(int argc, char *argv[])
     parser_main();
     resolver_main();
     installer_main();
+}
+
+void handle_remove(int argc, char *argv[])
+{
+    // get env name
+    char env_name[256];
+    snprintf(env_name, sizeof(env_name), "%s", argv[2]);
+
+    uninstaller_main(env_name);
 }
