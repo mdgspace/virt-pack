@@ -1,6 +1,7 @@
 #include <libgen.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "unistd.h"
 #include <jansson.h>
 #include <string.h>
 #include "../include/util.h"
@@ -57,9 +58,25 @@ int installer_main()
     //! currently 2hardcoded for ubuntu
     char* pkg_name=basename(local_dir);
     //! basename may not be unique
-    args[0] = "./deb_install.sh"; 
-    args[1] = strdup(pkg_name);
+    // char script_path[PATH_MAX];
+    // snprintf(script_path, sizeof(script_path), "%s/deb_install.sh",local_dir);
+    // printf(script_path);
+    char exe_path[PATH_MAX];
+ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path)-1);
+if (len == -1) {
+    perror("readlink");
+    exit(1);
+}
+exe_path[len] = '\0';
 
+char *exe_dir = dirname(exe_path);
+
+char script_path[PATH_MAX];
+snprintf(script_path, sizeof(script_path), "%s/src/deb_install.sh", exe_dir);
+printf(script_path);
+args[0] = strdup(script_path);
+    args[0] = script_path;
+    args[1] = strdup(pkg_name);
 
     size_t arg_index = 2;
     // get the array of packages corr to each lib name

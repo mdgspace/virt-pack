@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <jansson.h>
+#include "../include/util.h"
 #include <string.h>
 
 #define VIRT_PACK_LOCAL_DIR_PATH ".local/share/virt-pack"
