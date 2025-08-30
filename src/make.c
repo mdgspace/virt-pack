@@ -15,8 +15,8 @@ void bear_intercept(int argc, char *argv[])//lets try parsing the entire command
     printf("Intercepting using bear...\n");
 
     // get local directory path
-    // char local_dir[PATH_MAX];
-    // get_local_dir(local_dir, sizeof(local_dir));
+    char local_dir[PATH_MAX];
+    get_local_dir(local_dir, sizeof(local_dir));
     char cmd[256];
     //prepend bear intercept to current command
     char* command=join_args(argc,argv);//! add malloc
@@ -29,40 +29,7 @@ void bear_intercept(int argc, char *argv[])//lets try parsing the entire command
         return;
     }
     //! aage ka should not be required
-    // source and destination paths
-    // char src_path[PATH_MAX];
-    // snprintf(src_path, sizeof(src_path), "events.json");
 
-    // char dest_path[PATH_MAX];
-    // snprintf(dest_path, sizeof(dest_path), "%s-events.json", local_dir);
-
-    // FILE *src = fopen(src_path, "r");
-    // if (!src)
-    // {
-    //     perror("[ERROR] Could not open source events.json. Check perms and try again\n");
-    //     return;
-    // }
-
-    // FILE *dest = fopen(dest_path, "w");
-    // if (!dest)
-    // {
-    //     perror("[ERROR] Could not create destination events.json. Check perms and try again\n");
-    //     fclose(src);
-    //     return;
-    // }
-
-    // char buffer[8192];
-    // size_t bytes;
-    // while ((bytes = fread(buffer, 1, sizeof(buffer), src)) > 0)
-    // {
-    //     fwrite(buffer, 1, bytes, dest);
-    // }
-
-    // fclose(src);
-    // fclose(dest);
-
-    // printf("(*) Copied events.json to %s\n", dest_path);
-    // printf("(*) bear intercept ended\n");
 }
 char *join_args(int argc, char *argv[]) {
     int total_len = 0;
