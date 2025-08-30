@@ -3,7 +3,7 @@
 #include <jansson.h>
 #include <unistd.h>
 
-#include "../include/util.h"
+#include "util.h"
 
 #define PATH_MAX 4096
 

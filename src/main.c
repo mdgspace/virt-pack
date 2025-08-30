@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <libgen.h> // for basename
-#include <unistd.h> // for getcwd
+#include <libgen.h>
+#include <unistd.h>
 #include <getopt.h>
-#include "../include/commands.h"
+
+#include "commands.h"
 
 #define PATH_MAX 4096
 
@@ -14,6 +15,21 @@ void remove_lib();
 
 // ~/.local/share/virt-pack for persistent files
 // ~/.cache/virt-pack for non-critical logs or intermediate files
+
+void print_help()
+{
+    const char *help_text =
+        "\n"
+        "Usage:\n"
+        "   virt-pack make <env-name>\n"
+        "   virt-pack remove <env-name>\n"
+        "   virt-pack show\n"
+        "   virt-pack update-db\n"
+        "   virt-pack --version | virt-pack version\n"
+        "   virt-pack --help | virt-pack help\n";
+
+    fputs(help_text, stdout);
+}
 
 int main(int argc, char *argv[])
 {   
@@ -98,3 +114,4 @@ void remove_lib(){
     //     }
     //     handle_remove(argc, argv);
 }
+

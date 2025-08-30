@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <jansson.h>
 #include <string.h>
-#include "../include/util.h"
 #include <sys/types.h>
 #include <sys/wait.h>
+
+#include "util.h"
+
 #define PATH_MAX 4096
-
-
 
 int installer_main()
 {
@@ -116,3 +116,4 @@ free(args);
     printf("(*) installer main ended\n");
     return 0;
 }
+
