@@ -19,9 +19,8 @@ typedef enum
 
 // to store the type of build tool being used
 
-
 void handle_make(int argc, char *argv[]);
-void handle_remove(int argc, char *argv[]);
+void handle_remove();
 int show_environments();
 int show_env_packages(const char *env_name);
 void print_help();

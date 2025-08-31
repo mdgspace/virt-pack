@@ -2,10 +2,7 @@
 #include "../../include/uninstaller.h"
 #include "../../include/util.h"
 
-void handle_remove(int argc, char *argv[])
+void handle_remove()
 {
-    // get env name
-    char env_name[256];
-    snprintf(env_name, sizeof(env_name), "%s", argv[2]);
-    uninstaller_main(env_name);
+    remove_pkg();
 }

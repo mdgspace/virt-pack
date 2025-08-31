@@ -45,6 +45,13 @@ if ! sudo apt install -y "./$debfile"; then
 fi
 rm -rf "$tmpdir"
 
+# save package info to project local .virt-pack
+{
+    echo "Package: $pkgname"
+    echo "Version: $version"
+    echo "Depends: $depends"
+} > .virt-pack
+
 echo 
 echo "Package built: $pkgname"
 echo "Depends: $depends"
