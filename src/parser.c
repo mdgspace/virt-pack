@@ -4,8 +4,6 @@
 #include <jansson.h>
 #include <stdbool.h>
 
-#include "util.h"
-
 #define PATH_MAX 4096
 
 // util: check if a string is a flag
@@ -125,7 +123,7 @@ int parser_main()
 {
     printf("(*) parser main started\n");
     char local_dir[PATH_MAX];
-    get_local_dir(local_dir, sizeof(local_dir));
+    // get_local_dir(local_dir, sizeof(local_dir));
 
     // construct path to the env-specific events.json file
     char input_file[PATH_MAX];
