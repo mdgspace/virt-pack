@@ -12,7 +12,6 @@ all: virt-pack
 
 virt-pack: $(OBJS)
 	$(CC) -o $@ $^ $(LDLIBS) $(CFLAGS)
-	# $(CC) $(CFLAGS) -o $@ $^ $(LDLIBS) -DPREFIX=\"$(PREFIX)\"
 
 install: all
 	mkdir -p $(BINDIR) $(SCRIPTDIR)
