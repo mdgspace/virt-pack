@@ -1,20 +1,21 @@
 #!/bin/bash
-set -e
-if [ $# -lt 2 ]; then
-    echo "Usage: $0 <virtual-package-name> <dependency1> [dependency2 ...]"
-    exit 1
-fi
-pkgname="$1"
-#might have to do something about the directory currently uses current directory
-#remove the first argument
+pkgname=$(echo $PWD | sed 's/\//_/g')
+# if [[ ! "$pkgname" =~ ^[a-z0-9][a-z0-9+.-]*$ ]]; then
+#     echo "Error: Invalid package name '$pkgname'"
+#     exit 1
+# fi
+
+pkgs=$(xlocate $1.pc | fzf -1 | cut -d' ' -f1)
+echo $pkgs
 shift
-# Validate package name (only allow letters, digits, dashes, and underscores)
-if [[ ! "$pkgname" =~ ^[a-z0-9][a-z0-9+.-]*$ ]]; then
-    echo "Error: Invalid package name '$pkgname'"
-    exit 1
-fi
-depends="$(printf '%s, ' "$@")"
-depends="${depends%, }"
+
+for arg in "$@"; do
+    pkgs="$pkgs, $(xlocate $arg.pc | fzf -1 | cut -d' ' -f1)"
+    echo $pkgs
+done
+
+# depends="$(printf '%s, ' "$@")"
+# depends="${depends%, }"
 version="1.0"
 #temporary directory for staging
 tmpdir=$(mktemp -d)

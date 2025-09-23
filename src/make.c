@@ -13,7 +13,7 @@ void bear_intercept(int argc, char *argv[])
 {
     printf("Intercepting using bear...\n");
 
-    char cmd[256] = "bear intercept -- %s";
+    char cmd[256] = "bear intercept -- ";
     for (int i = 0; i < argc; i++) {
         strlcat(cmd, argv[i], sizeof(cmd));
     }
@@ -39,7 +39,7 @@ int handle_make(int argc, char *argv[], const char *pkgmgr)
     snprintf(installer, 1024, SCRIPTDIR "/%s-install.sh", pkgmgr); 
 
 
-	if (execv("/usr/local/share/virt-pack/scripts/xbps-install.sh", libs)) {
+	if (execv(installer, libs)) {
     	perror("execv");
 	}
 
