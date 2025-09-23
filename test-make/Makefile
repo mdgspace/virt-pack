@@ -2,7 +2,7 @@ CC = gcc
 TARGET = virt-pack-test-make
 
 # Replace this with the libraries you want to use
-LIB_NAME = pango
+LIB_NAME = libpipewire-0.3
 PKG := pkg-config --cflags --libs $(LIB_NAME)
 
 all: $(TARGET)

@@ -1,16 +1,16 @@
 #!/bin/bash
-pkgname=$(echo $PWD | sed 's/\//_/g')
+pkgname=$(echo $PWD | sed 's/\///g')
 # if [[ ! "$pkgname" =~ ^[a-z0-9][a-z0-9+.-]*$ ]]; then
 #     echo "Error: Invalid package name '$pkgname'"
 #     exit 1
 # fi
 
-pkgs=$(xlocate $1.pc | fzf -1 | cut -d' ' -f1)
+pkgs=$(apt-file find $1.pc | fzf -1 | cut -d':' -f1)
 echo $pkgs
 shift
 
 for arg in "$@"; do
-    pkgs="$pkgs, $(xlocate $arg.pc | fzf -1 | cut -d' ' -f1)"
+    pkgs="$pkgs, $(apt-file find $arg.pc | fzf -1 | cut -d':' -f1)"
     echo $pkgs
 done
 
@@ -26,7 +26,7 @@ Version: $version
 Section: misc
 Priority: optional
 Architecture: all
-Depends: $depends
+Depends: $pkgs
 Maintainer: You <you@example.com>
 Description: Virtual package $pkgname
 EOF
@@ -48,5 +48,5 @@ rm -rf "$tmpdir"
 
 echo 
 echo "Package built: $pkgname"
-echo "Depends: $depends"
+echo "Depends: $pkgs"
 echo "Staging directory: $tmpdir"
