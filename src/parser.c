@@ -129,7 +129,8 @@ int parser_main()
 
     // construct path to the env-specific events.json file
     char input_file[PATH_MAX];
-    snprintf(input_file, sizeof(input_file), "%s/events.json", local_dir);
+    //! might need to reverse edits done here
+    snprintf(input_file, sizeof(input_file), "events.json");
 
     // get libs-from-intercept.json <- output
     char output_file[PATH_MAX];
