@@ -4,8 +4,6 @@
 #include <jansson.h>
 #include <stdbool.h>
 
-#include "util.h"
-
 #define PATH_MAX 4096
 
 // util: check if a string is a flag
@@ -125,7 +123,7 @@ int parser_main()
 {
     printf("(*) parser main started\n");
     char local_dir[PATH_MAX];
-    get_local_dir(local_dir, sizeof(local_dir));
+    // get_local_dir(local_dir, sizeof(local_dir));
 
     // construct path to the env-specific events.json file
     char input_file[PATH_MAX];
@@ -154,3 +152,93 @@ int parser_main()
     return EXIT_SUCCESS;
 }
 
+void parse_libs(char **libs) {
+    fprintf(stderr, "(*) parse_libs started\n");
+    FILE *events = fopen("events.json", "r");
+    char buffer[65536];
+    size_t line = 0;
+    json_error_t error;
+    json_t *lib_array = json_array();
+    int index = 1;
+
+    while (fgets(buffer, sizeof(buffer), events))
+    {
+        line++;
+
+        json_t *event = json_loads(buffer, 0, &error);
+        if (!event)
+        {
+            fprintf(stderr, "JSON parse error on line %zu: %s\n", line, error.text);
+            continue;
+        }
+
+        json_t *started = json_object_get(event, "started");
+        if (!started)
+        {
+            json_decref(event);
+            continue;
+        }
+
+        json_t *execution = json_object_get(started, "execution");
+        if (!execution)
+        {
+            json_decref(event);
+            continue;
+        }
+
+        json_t *exe = json_object_get(execution, "executable");
+        if (!exe || !json_is_string(exe))
+        {
+            json_decref(event);
+            continue;
+        }
+
+        const char *exe_str = json_string_value(exe);
+        if (!strstr(exe_str, "pkg-config"))
+        {
+            json_decref(event);
+            continue;
+        }
+
+        json_t *args = json_object_get(execution, "arguments");
+        if (!args || !json_is_array(args))
+        {
+            json_decref(event);
+            continue;
+        }
+
+        json_t *arg;
+        size_t i;
+        json_array_foreach(args, i, arg)
+        {
+
+            int cont = 0;
+            if (!json_is_string(arg))
+                continue;
+
+            const char *arg_str = json_string_value(arg);
+
+            // skip the first token (pkg-config) and any flags
+            if (i == 0 || is_flag(arg_str))
+                continue;
+
+            for (int j = 1; j < index; j++) {
+                if (strcmp(libs[j], arg_str) == 0)
+                    cont = 1;
+            }
+
+            if (cont)
+                continue;
+
+            // append to lib_array
+            // split arg_str by spaces to handle multiple libs in one argument
+            // char *arg_copy = strdup(arg_str);
+            libs[index] = strdup(arg_str);
+            fprintf(stderr, "%s:%d:%s: lib: %s\n", __FILE__, __LINE__, __func__, libs[index]);
+            index++;
+        }
+
+        json_decref(event);
+    }
+    libs[index] = NULL;
+}

@@ -4,17 +4,41 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "commands.h"
 
 #define PATH_MAX 4096
+#define VIRT_PACK_LOCAL_DIR_PATH ".local/share/virt-pack"
 
-void print_version();
-void update_db();
-void remove_lib();
+char path[256];
 
-// ~/.local/share/virt-pack for persistent files
-// ~/.cache/virt-pack for non-critical logs or intermediate files
+const char *package_manager = NULL;
+
+static const char *pkgmgr_bins[2] = { "apt", "xbps-install" }; 
+static const char *pkgmgr_names[2] = { "apt", "xbps" };
+
+const char *get_pkgmgr() {
+    const char *path = getenv("PATH");
+    if (!path) return 0;
+
+    char *p = strdup(path);
+    char *dir = strtok(p, ":");
+    while (dir) {
+        char buf[1024];
+        for (int i = 0; i < sizeof(pkgmgr_bins)/sizeof(pkgmgr_bins[0]); i++) {
+            snprintf(buf, sizeof(buf), "%s/%s", dir, pkgmgr_bins[i]);
+            if (access(buf, X_OK) == 0) {
+                free(p);
+                return pkgmgr_names[i];
+            }
+        }
+        dir = strtok(NULL, ":");
+    }
+    free(p);
+    return NULL;
+}
 
 void print_help()
 {
@@ -25,22 +49,53 @@ void print_help()
         "   virt-pack remove <env-name>\n"
         "   virt-pack show\n"
         "   virt-pack update-db\n"
+        "   virt-pack show-pkgmgr\n"
         "   virt-pack --version | virt-pack version\n"
         "   virt-pack --help | virt-pack help\n";
-
-    fputs(help_text, stdout);
+    fputs(help_text, stderr);
 }
 
-int main(int argc, char *argv[])
-{   
-    if(argc<2){
-        print_help(); 
+void show_pkgmgr() {
+    fputs(package_manager, stderr);
+}
+
+void print_version() {
+    const char *version = "virt-pack version 1.0.0\n";
+    fputs(version, stderr);
+}
+
+void update_db() {
+    int result = system("python3 " SCRIPTDIR "/update_db.py");
+
+    if (result != 0) {
+        fprintf(stderr, "[ERROR] Failed to update database\n");
     }
+}
+
+int main(int argc, char *argv[]) {   
+    const char *home = getenv("HOME");
+    if (!home) {
+        fprintf(stderr, "[ERROR] HOME not set.\n");
+        return 1;
+    }
+
+    // snprintf(path, 256, "%s/%s", home, VIRT_PACK_LOCAL_DIR_PATH);
+
+    // struct stat st = {0};
+    // if (stat(path, &st) == -1) {
+        // mkdir(path, 0755);
+    // }
+
+    package_manager = get_pkgmgr();
+
+    // FILE *pkg = popen(SCRIPTDIR "/check-pkgmanager.sh", "r");
+
     static struct option longopts[]={
         {"help",no_argument,NULL,'h'},
         {"version",no_argument,NULL,'v'},
         {"update-db",no_argument,NULL,'u'},
-        {"remove",required_argument,NULL,'r'},//!check
+        {"show-pkgmgr",no_argument,NULL,'s'},
+        {"remove",no_argument,NULL,'r'},//!check
         {0,0,0,0}
     };
     //!trying getopt may be temporary
@@ -56,7 +111,7 @@ int main(int argc, char *argv[])
     int getopt_argc=(sep_index==-1)?argc:sep_index;
     optind=1;
     //todo add options and do long
-    while((option=getopt_long(getopt_argc,argv,"hvur:",longopts,NULL))!=-1){
+    while((option=getopt_long(getopt_argc,argv,"hvusr",longopts,NULL))!=-1){
         switch (option){
             case 'h':
                 print_help();
@@ -68,50 +123,20 @@ int main(int argc, char *argv[])
                 update_db();
                 break;
             case 'r':
-                remove_lib();
+                handle_remove(package_manager);
                 break;
+            case 's':
+            	show_pkgmgr();
+            	break;
             default:
-                printf("Command Not Found");
+                print_help();
                 break;
         }
     }
     if(sep_index!=-1&&sep_index+1<argc){
         printf("Forwarding args after -- ");
-        handle_make(argc-sep_index-1,&argv[sep_index+1]);//! handle_make ko sort karo
+        handle_make(argc-sep_index-1,&argv[sep_index+1], package_manager);//! handle_make ko sort karo
     }
     //todo what if -1
     //! trial over
 }
-void print_version()
-{
-    const char *version_text =
-        "virt-pack version 1.0.0\n";
-
-    fputs(version_text, stdout);
-}
-void update_db()
-{
-     int result = system("python3 /usr/local/share/virt-pack/scripts/update_db.py");
-        if (result != 0)
-        {
-            fprintf(stderr, "[ERROR] Failed to update database\n");
-        }
-        
-}
-//! handle removing
-void remove_lib(){
-    // char env_name[256]; // buffer to hold the directory path
-
-    //     if (argc >= 3)
-    //     {
-    //         snprintf(env_name, sizeof(env_name), "%s", argv[2]);
-    //     }
-    //     else
-    //     {
-    //         printf("Usage: virt-pack remove <env-name>\n");
-    //         printf("Use `virt-pack show` to show names of all environments.\n");
-    //         return 1;
-    //     }
-    //     handle_remove(argc, argv);
-}
-

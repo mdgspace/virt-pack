@@ -5,5 +5,6 @@
 #define OUTPUT_FILE "data/libs.json"
 
 int parser_main();
+void parse_libs(char **);
 
 #endif

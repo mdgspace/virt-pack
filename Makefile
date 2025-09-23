@@ -1,22 +1,27 @@
 CC := cc
-SRC := src/main.c src/installer.c src/parser.c src/resolver.c src/uninstaller.c src/util.c src/make.c src/show.c
+SRC := src/main.c src/parser.c src/make.c
 OBJS := $(SRC:.c=.o)
 LDLIBS := -ljansson
 
 PREFIX ?= /usr/local
+CFLAGS += -DPREFIX=\"$(PREFIX)\"
 BINDIR := $(PREFIX)/bin
 SCRIPTDIR := $(PREFIX)/share/virt-pack
 
 all: virt-pack
 
 virt-pack: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+	$(CC) -o $@ $^ $(LDLIBS) $(CFLAGS)
 
 install: all
 	mkdir -p $(BINDIR) $(SCRIPTDIR)
 	install virt-pack $(BINDIR)
-	cp -r scripts/update_db.py $(SCRIPTDIR)
+	cp -r scripts $(SCRIPTDIR)
 	chmod -R 755 $(SCRIPTDIR)/scripts
+
+uninstall:
+	rm -f $(BINDIR)/virt-pack
+	rm -rf $(SCRIPTDIR)
 
 clean:
 	rm -f virt-pack src/*.o
