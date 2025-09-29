@@ -48,7 +48,6 @@ void print_help()
         "   virt-pack make <env-name>\n"
         "   virt-pack remove <env-name>\n"
         "   virt-pack show\n"
-        "   virt-pack update-db\n"
         "   virt-pack show-pkgmgr\n"
         "   virt-pack --version | virt-pack version\n"
         "   virt-pack --help | virt-pack help\n";
@@ -64,13 +63,7 @@ void print_version() {
     fputs(version, stderr);
 }
 
-void update_db() {
-    int result = system("python3 " SCRIPTDIR "/update_db.py");
 
-    if (result != 0) {
-        fprintf(stderr, "[ERROR] Failed to update database\n");
-    }
-}
 
 int main(int argc, char *argv[]) {   
     const char *home = getenv("HOME");
@@ -78,28 +71,15 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "[ERROR] HOME not set.\n");
         return 1;
     }
-
-    // snprintf(path, 256, "%s/%s", home, VIRT_PACK_LOCAL_DIR_PATH);
-
-    // struct stat st = {0};
-    // if (stat(path, &st) == -1) {
-        // mkdir(path, 0755);
-    // }
-
     package_manager = get_pkgmgr();
-
-    // FILE *pkg = popen(SCRIPTDIR "/check-pkgmanager.sh", "r");
 
     static struct option longopts[]={
         {"help",no_argument,NULL,'h'},
         {"version",no_argument,NULL,'v'},
-        {"update-db",no_argument,NULL,'u'},
         {"show-pkgmgr",no_argument,NULL,'s'},
-        {"remove",no_argument,NULL,'r'},//!check
+        {"remove",no_argument,NULL,'r'},
         {0,0,0,0}
     };
-    //!trying getopt may be temporary
-    //! multiple options can be called at once is that ok 
     int option;
     int sep_index=-1;
     for(int i=1;i<argc;i++){
@@ -119,9 +99,6 @@ int main(int argc, char *argv[]) {
             case 'v':
                 print_version();
                 break;
-            case 'u':
-                update_db();
-                break;
             case 'r':
                 handle_remove(package_manager);
                 break;
@@ -135,8 +112,6 @@ int main(int argc, char *argv[]) {
     }
     if(sep_index!=-1&&sep_index+1<argc){
         printf("Forwarding args after -- ");
-        handle_make(argc-sep_index-1,&argv[sep_index+1], package_manager);//! handle_make ko sort karo
+        handle_make(argc-sep_index-1,&argv[sep_index+1], package_manager);
     }
-    //todo what if -1
-    //! trial over
 }

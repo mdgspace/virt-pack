@@ -21,12 +21,6 @@ chmod +x install.sh
 ```
 
 ## How to use
-
-After installation, we first need to download the **package mapping database** by running the following command:
-```
-virt-pack update-db
-```
-
 Then, move into your project directory with missing dependencies and run the following command:
 #### For `Makefile`-based projects
 ```

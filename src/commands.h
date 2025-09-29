@@ -12,7 +12,5 @@ enum pkg_manager {
 
 int handle_make(int argc, char *argv[], const char *);
 int handle_remove(const char *);
-int show_environments();
-int show_env_packages(const char *env_name);
 
 #endif
