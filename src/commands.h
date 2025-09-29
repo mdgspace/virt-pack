@@ -12,5 +12,6 @@ enum pkg_manager {
 
 int handle_make(int argc, char *argv[], const char *);
 int handle_remove(const char *);
+int info_package(const char *);
 
 #endif

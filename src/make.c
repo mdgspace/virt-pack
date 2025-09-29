@@ -144,3 +144,10 @@ int handle_remove(const char *pkgmgr)
     execl(uninstaller, "uninstaller", (char *)NULL);
     return 0;
 }
+
+int info_package(const char *pkgmgr) {
+    char info[256];
+    snprintf(info, 256, SCRIPTDIR "/%s-info.sh", pkgmgr);
+    execl(info, "info", (char *)NULL);
+    return 0;
+}

@@ -1,5 +1,5 @@
 CC := cc
-SRC := src/main.c src/parser.c src/make.c
+SRC := src/main.c src/make.c
 OBJS := $(SRC:.c=.o)
 LDLIBS := $(pkg-config --cflags --libs jansson)
 
