@@ -1,7 +1,7 @@
 CC := cc
 SRC := src/main.c src/parser.c src/make.c
 OBJS := $(SRC:.c=.o)
-LDLIBS := -ljansson
+LDLIBS := $(pkg-config --cflags --libs jansson)
 
 PREFIX ?= /usr/local
 CFLAGS += -DPREFIX=\"$(PREFIX)\"
@@ -25,4 +25,3 @@ uninstall:
 
 clean:
 	rm -f virt-pack src/*.o
-
