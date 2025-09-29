@@ -76,7 +76,7 @@ void parse_libs(char **libs) {
             const char *arg_str = json_string_value(arg);
 
             // skip the first token (pkg-config) and any flags
-            if (i == 0 || strncmp(arg_str, "--", 2))
+            if (i == 0 || strncmp(arg_str, "--", 2)==0)
                 continue;
 
             for (int j = 1; j < index; j++) {
