@@ -16,7 +16,7 @@ sudo make install
 ## How to use
 Then, move into your project directory with dependencies (should be calls to pkg-config) and run the following command:
 ```
-virt-pack [-n <pkg-name>] -- build_command
+virt-pack -- build_command
 ```
 
 Keep in mind that the dependencies(should be calls to pkg-config) should be included in the Makefile / CmakeLists.txt. An example Makefile is provided below.
@@ -24,7 +24,7 @@ For more options you can pass `--help` parameter.
 
 To remove the installed packages when you don't need them anymore, run the following command:
 ```
-virt-pack remove [pkg-name]
+virt-pack remove
 ```
 This will only remove the packages that were installed using virt-pack. The libraries that you had before will not be removed.
 

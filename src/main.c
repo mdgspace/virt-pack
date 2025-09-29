@@ -45,12 +45,13 @@ void print_help()
     const char *help_text =
         "\n"
         "Usage:\n"
-        "   virt-pack make <env-name>\n"
-        "   virt-pack remove <env-name>\n"
-        "   virt-pack show\n"
-        "   virt-pack show-pkgmgr\n"
-        "   virt-pack --version | virt-pack version\n"
-        "   virt-pack --help | virt-pack help\n";
+        "   virt-pack -- build_command\n"
+        "   virt-pack --remove\n"
+        "   virt-pack --show\n"
+        "   virt-pack --show-pkgmgr\n"
+        "   virt-pack --info\n"
+        "   virt-pack --version\n"
+        "   virt-pack --help\n";
     fputs(help_text, stderr);
 }
 
@@ -78,6 +79,7 @@ int main(int argc, char *argv[]) {
         {"version",no_argument,NULL,'v'},
         {"show-pkgmgr",no_argument,NULL,'s'},
         {"remove",no_argument,NULL,'r'},
+        {"info",no_argument,NULL,'i'},
         {0,0,0,0}
     };
     int option;
@@ -91,7 +93,7 @@ int main(int argc, char *argv[]) {
     int getopt_argc=(sep_index==-1)?argc:sep_index;
     optind=1;
     //todo add options and do long
-    while((option=getopt_long(getopt_argc,argv,"hvusr",longopts,NULL))!=-1){
+    while((option=getopt_long(getopt_argc,argv,"hvsri",longopts,NULL))!=-1){
         switch (option){
             case 'h':
                 print_help();
@@ -104,6 +106,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 's':
             	show_pkgmgr();
+            	break;
+            case 'i':
+            	info_package(package_manager);
             	break;
             default:
                 print_help();
