@@ -9,8 +9,9 @@ Please take a moment to read through these guidelines to keep things smooth.
 
 1. **Fork** the repository and **clone** it locally.
 2. Install dependencies:
+- [Bear](https://github.com/rizsotto/Bear)
 - libjansson
-- fzf
+- [fzf](https://github.com/junegunn/fzf)
 3. Run tests to confirm everything works:
 ```sh
 cd test-make
