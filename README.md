@@ -1,5 +1,4 @@
 # virt-pack
-# This is the readme file
 virt-pack is a tool that uses [bear](https://github.com/rizsotto/Bear) to intercept your build commands, and detects missing system libraries (via `pkg-config`) and installs them using your system's package manager. It's especially useful for C/C++ projects with messy dependencies.
 
 **Note:** This tool only supports dependencies using pkg-config.
