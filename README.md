@@ -8,8 +8,8 @@ virt-pack is a tool that uses [bear](https://github.com/rizsotto/Bear) to interc
 This version of virt-pack currently only supports apt and xbps package managers as it uses the package manager specific tools to install missing libraries.
 Since the tool uses [bear](https://github.com/rizsotto/Bear) and [fzf] (https://github.com/junegunn/fzf), so install them via your respective package managers.
 ```
-git clone https://github.com/mdgspace/dependency-manager
-cd dependency-manager
+git clone https://github.com/mdgspace/virt-pack
+cd virt-pack
 sudo make install
 ```
 
