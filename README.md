@@ -24,7 +24,7 @@ For more options you can pass `--help` parameter.
 
 To remove the installed packages when you don't need them anymore, run the following command:
 ```
-virt-pack remove
+virt-pack --remove
 ```
 This will only remove the packages that were installed using virt-pack. The libraries that you had before will not be removed.
 
