@@ -5,13 +5,17 @@ pkgname=$(echo $PWD | sed 's/\///g')
 #     exit 1
 # fi
 
-pkgs=$(apt-file find $1.pc | fzf -1 | cut -d':' -f1)
-echo $pkgs
-shift
+# Read pkg-config packages into array
+mapfile -t pkg_list < <(jq -r 'select(.started.execution.executable? // "" | contains("pkg-config")) | .started.execution.arguments[1:][] | select(startswith("--") | not)' events.json)
 
-for arg in "$@"; do
-    pkgs="$pkgs, $(apt-file find $arg.pc | fzf -1 | cut -d':' -f1)"
-    echo $pkgs
+echo "Found packages: ${pkg_list[@]}"
+
+# Process first package
+pkgs=$(apt-file find "${pkg_list[0]}.pc" | fzf -1 | cut -d':' -f1)
+
+# Process remaining packages
+for pkg in "${pkg_list[@]:1}"; do
+    pkgs="$pkgs, $(apt-file find $pkg.pc | fzf -1 | cut -d':' -f1)"
 done
 
 # depends="$(printf '%s, ' "$@")"

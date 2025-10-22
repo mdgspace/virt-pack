@@ -24,10 +24,14 @@ mkdir -p "$PKG_DIR"
 
 echo "resolving libs, in case of multiple choose one"
 
-pkgs=$(xlocate $1.pc | fzf -1 | cut -d' ' -f1)
-shift
+# Read pkg-config packages into array
+mapfile -t pkg_list < <(jq -r 'select(.started.execution.executable? // "" | contains("pkg-config")) | .started.execution.arguments[1:][] | select(startswith("--") | not)' events.json)
 
-for arg in "$@"; do
+echo "Found packages: ${pkg_list[@]}"
+
+pkgs=$(xlocate "${pkg_list[0]}.pc" | fzf -1 | cut -d' ' -f1)
+
+for arg in "${pkg_list[@]:1}"; do
     pkgs="$pkgs $(xlocate $arg.pc | fzf -1 | cut -d' ' -f1)"
 done
 
