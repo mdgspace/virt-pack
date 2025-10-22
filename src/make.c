@@ -12,9 +12,12 @@ void bear_intercept(int argc, char *argv[])
 {
     printf("Intercepting using bear...\n");
 
-    char cmd[256] = SCRIPTDIR "/bear-intercept.sh ";
+    char cmd[1024] = SCRIPTDIR "/bear-intercept.sh ";
     for (int i = 0; i < argc; i++) {
         strlcat(cmd, argv[i], sizeof(cmd));
+        if (i < argc - 1) {
+            strlcat(cmd, " ", sizeof(cmd));
+        }
     }
 
     printf("Running: %s\n",cmd);
