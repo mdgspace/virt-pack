@@ -5,8 +5,13 @@ pkgname=$(echo $PWD | sed 's/\///g')
 #     exit 1
 # fi
 
-# Read pkg-config packages into array
-mapfile -t pkg_list < <(jq -r 'select(.started.execution.executable? // "" | contains("pkg-config")) | .started.execution.arguments[1:][] | select(startswith("--") | not)' events.json)
+# Read pkg-config packages into array from packages.txt
+if [ ! -f packages.txt ]; then
+    echo "Error: packages.txt not found. Run bear-intercept.sh first."
+    exit 1
+fi
+
+mapfile -t pkg_list < packages.txt
 
 echo "Found packages: ${pkg_list[@]}"
 

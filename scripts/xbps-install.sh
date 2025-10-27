@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 XBPS_DIR=~/.local/share/virt-pack/xbps
 
@@ -24,8 +24,13 @@ mkdir -p "$PKG_DIR"
 
 echo "resolving libs, in case of multiple choose one"
 
-# Read pkg-config packages into array
-mapfile -t pkg_list < <(jq -r 'select(.started.execution.executable? // "" | contains("pkg-config")) | .started.execution.arguments[1:][] | select(startswith("--") | not)' events.json)
+# Read pkg-config packages into array from packages.txt
+if [ ! -f packages.txt ]; then
+    echo "Error: packages.txt not found. Run bear-intercept.sh first."
+    exit 1
+fi
+
+mapfile -t pkg_list < packages.txt
 
 echo "Found packages: ${pkg_list[@]}"
 
