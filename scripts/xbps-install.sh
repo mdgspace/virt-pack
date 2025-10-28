@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 XBPS_DIR=~/.local/share/virt-pack/xbps
 
@@ -24,10 +24,19 @@ mkdir -p "$PKG_DIR"
 
 echo "resolving libs, in case of multiple choose one"
 
-pkgs=$(xlocate $1.pc | fzf -1 | cut -d' ' -f1)
-shift
+# Read pkg-config packages into array from packages.txt
+if [ ! -f packages.txt ]; then
+    echo "Error: packages.txt not found. Run bear-intercept.sh first."
+    exit 1
+fi
 
-for arg in "$@"; do
+mapfile -t pkg_list < packages.txt
+
+echo "Found packages: ${pkg_list[@]}"
+
+pkgs=$(xlocate "${pkg_list[0]}.pc" | fzf -1 | cut -d' ' -f1)
+
+for arg in "${pkg_list[@]:1}"; do
     pkgs="$pkgs $(xlocate $arg.pc | fzf -1 | cut -d' ' -f1)"
 done
 

@@ -1,7 +1,7 @@
 CC := cc
 SRC := src/main.c src/make.c
 OBJS := $(SRC:.c=.o)
-LDLIBS := `pkg-config --cflags --libs jansson`
+LDLIBS := -lbsd
 
 PREFIX ?= /usr/local
 CFLAGS += -DPREFIX=\"$(PREFIX)\"

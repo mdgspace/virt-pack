@@ -5,13 +5,22 @@ pkgname=$(echo $PWD | sed 's/\///g')
 #     exit 1
 # fi
 
-pkgs=$(apt-file find $1.pc | fzf -1 | cut -d':' -f1)
-echo $pkgs
-shift
+# Read pkg-config packages into array from packages.txt
+if [ ! -f packages.txt ]; then
+    echo "Error: packages.txt not found. Run bear-intercept.sh first."
+    exit 1
+fi
 
-for arg in "$@"; do
-    pkgs="$pkgs, $(apt-file find $arg.pc | fzf -1 | cut -d':' -f1)"
-    echo $pkgs
+mapfile -t pkg_list < packages.txt
+
+echo "Found packages: ${pkg_list[@]}"
+
+# Process first package
+pkgs=$(apt-file find "${pkg_list[0]}.pc" | fzf -1 | cut -d':' -f1)
+
+# Process remaining packages
+for pkg in "${pkg_list[@]:1}"; do
+    pkgs="$pkgs, $(apt-file find $pkg.pc | fzf -1 | cut -d':' -f1)"
 done
 
 # depends="$(printf '%s, ' "$@")"
